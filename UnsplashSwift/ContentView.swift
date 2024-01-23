@@ -31,16 +31,16 @@ struct ContentView: View {
         NavigationView {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 8) {
-                    ForEach(imageURLs, id: \.self) { imageURL in
-                        AsyncImage(url: URL(string: imageURL)) { image in
-                            image
-                                .resizable()
-                                .frame(height: 150)
-                                .cornerRadius(12)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                    }
+//                    ForEach(imageURLs, id: \.self) { imageURL in
+//                        AsyncImage(url: URL(string: imageURL)) {                              image in
+//                            image
+//                                .resizable()
+//                                .frame(height: 150)
+//                                .cornerRadius(12)
+//                        } placeholder: {
+//                            ProgressView()
+//                        }
+//                    }
                 }
             }
             .padding(.horizontal)
