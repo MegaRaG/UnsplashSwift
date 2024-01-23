@@ -12,9 +12,9 @@
 		DF55B4762B5FE9D400B7B6DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF55B4752B5FE9D400B7B6DC /* Assets.xcassets */; };
 		DF55B4792B5FE9D400B7B6DC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF55B4782B5FE9D400B7B6DC /* Preview Assets.xcassets */; };
 		DF55B49C2B5FFC4A00B7B6DC /* PlistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF55B49B2B5FFC4A00B7B6DC /* PlistManager.swift */; };
-		DF55B4A02B5FFD6000B7B6DC /* environment.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF55B49F2B5FFD6000B7B6DC /* environment.plist */; };
 		DF55B4A22B600FB700B7B6DC /* UnsplashAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF55B4A12B600FB700B7B6DC /* UnsplashAPI.swift */; };
 		DF55B4A42B6010B300B7B6DC /* FeedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF55B4A32B6010B300B7B6DC /* FeedState.swift */; };
+		DF55B4A62B60163100B7B6DC /* environment.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF55B4A52B60163100B7B6DC /* environment.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,9 +43,9 @@
 		DF55B47E2B5FE9D400B7B6DC /* UnsplashSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnsplashSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF55B4882B5FE9D400B7B6DC /* UnsplashSwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnsplashSwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF55B49B2B5FFC4A00B7B6DC /* PlistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistManager.swift; sourceTree = "<group>"; };
-		DF55B49F2B5FFD6000B7B6DC /* environment.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = environment.plist; sourceTree = "<group>"; };
 		DF55B4A12B600FB700B7B6DC /* UnsplashAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashAPI.swift; sourceTree = "<group>"; };
 		DF55B4A32B6010B300B7B6DC /* FeedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedState.swift; sourceTree = "<group>"; };
+		DF55B4A52B60163100B7B6DC /* environment.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = environment.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,7 +76,7 @@
 		DF55B4652B5FE9D200B7B6DC = {
 			isa = PBXGroup;
 			children = (
-				DF55B49F2B5FFD6000B7B6DC /* environment.plist */,
+				DF55B4A52B60163100B7B6DC /* environment.plist */,
 				DF55B4702B5FE9D200B7B6DC /* UnsplashSwift */,
 				DF55B46F2B5FE9D200B7B6DC /* Products */,
 			);
@@ -220,7 +220,7 @@
 			files = (
 				DF55B4792B5FE9D400B7B6DC /* Preview Assets.xcassets in Resources */,
 				DF55B4762B5FE9D400B7B6DC /* Assets.xcassets in Resources */,
-				DF55B4A02B5FFD6000B7B6DC /* environment.plist in Resources */,
+				DF55B4A62B60163100B7B6DC /* environment.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
