@@ -41,6 +41,7 @@ struct User: Codable {
 struct ContentView: View {
     @StateObject var feedState = FeedState()
     @State var imageList: [UnsplashPhoto] = []
+    var CliqueImage = false
     
     func loadData() async {
         // Créez une URL avec la clé d'API
@@ -65,8 +66,9 @@ struct ContentView: View {
         }
     }
     
-    let columns = [		        GridItem(.flexible(minimum: 150)),
-                                GridItem(.flexible(minimum: 150))
+    let columns = [
+        GridItem(.flexible(minimum: 150)),
+        GridItem(.flexible(minimum: 150))
     ]
     
     var body: some View {
@@ -82,7 +84,7 @@ struct ContentView: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
                         ForEach(homeFeed, id: \.id) { image in
-                            AsyncImage(url: URL(string: image.urls.raw )) { image in
+                            AsyncImage(url: URL(string: image.urls.raw)) { image in
                                 image
                                     .resizable()
                                     .frame(height: 150)
@@ -97,12 +99,22 @@ struct ContentView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .navigationTitle("Feed")
             } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Affiche une liste de 12 rectangles dans le else
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 8) {
+                        ForEach(0..<12, id: \.self) { index in
+                            Rectangle()
+                                .foregroundColor(.gray)
+                                .frame(height: 150)
+                                .cornerRadius(12)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .navigationTitle("Feed")
             }
-        }
-    }
-}
+        }}}
 
 extension Image {
     func centerCropped() -> some View {
