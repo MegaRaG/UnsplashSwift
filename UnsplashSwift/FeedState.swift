@@ -8,24 +8,47 @@
 import Foundation
 
 class FeedState: ObservableObject {
-    @Published var homeFeed: [UnsplashPhoto]?
+    @Published var photoFeed: [UnsplashPhoto]?
+    @Published var topicPhotosFeed: [UnsplashPhoto]?
+    @Published var topicFeed: [UnsplashTopic]?
 
-    // Fetch home feed utilise la fonction feedUrl de UnsplashAPI
-    // Puis assigne le résultat de l'appel réseau à la variable homeFeed
-    func fetchHomeFeed() async {
+    func fetchFeeds() async {
         do {
             if let url = UnsplashAPI.feedUrl() {
                 let request = URLRequest(url: url)
-                let (data, _) = try await URLSession.shared.data(for: request)
-                let deserializedData = try JSONDecoder().decode([UnsplashPhoto].self, from: data)
-                
-                // Met à jour l'état de homeFeed sur le thread principal
+                let (photoData, _) = try await URLSession.shared.data(for: request)
+                let deserializedPhotoData = try JSONDecoder().decode([UnsplashPhoto].self, from: photoData)
                 DispatchQueue.main.async {
-                    self.homeFeed = deserializedData
+                    self.photoFeed = deserializedPhotoData
+                }
+            }
+
+            if let url = UnsplashAPI.topicUrl() {
+                let request = URLRequest(url: url)
+                let (topicData, _) = try await URLSession.shared.data(for: request)
+                let deserializedTopicData = try JSONDecoder().decode([UnsplashTopic].self, from: topicData)
+                DispatchQueue.main.async {
+                    self.topicFeed = deserializedTopicData
                 }
             }
         } catch {
-            print("Error fetching home feed: \(error)")
+            print("Error fetching feeds: \(error)")
+        }
+    }
+    
+    func fetchTopicImages(path: String) async {
+        do {
+            if let url = UnsplashAPI.topicPhotosUrl(path: path) {
+                let request = URLRequest(url: url)
+                let (photoData, _) = try await URLSession.shared.data(for: request)
+                let deserializedPhotoData = try JSONDecoder().decode([UnsplashPhoto].self, from: photoData)
+                DispatchQueue.main.async {
+                    self.topicPhotosFeed = deserializedPhotoData
+                }
+            }
+        } catch {
+            print("Error fetching feeds: \(error)")
         }
     }
 }
+

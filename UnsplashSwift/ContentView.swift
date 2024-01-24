@@ -15,7 +15,6 @@ struct UnsplashPhoto: Codable, Identifiable {
     let user: User
 }
 
-// MARK: - UnsplashPhotoUrls
 struct UnsplashPhotoUrls: Codable {
     let raw, full, regular, small: String
     let thumb, smallS3: String
@@ -25,8 +24,6 @@ struct UnsplashPhotoUrls: Codable {
         case smallS3 = "small_s3"
     }
 }
-
-// MARK: - User
 struct User: Codable {
     let id, username:String
     let firstName, lastName: String?
@@ -37,53 +34,68 @@ struct User: Codable {
         case lastName = "last_name"
     }
 }
+// MARK: - UnsplashTopic
+struct UnsplashTopic: Codable, Identifiable {
+    let id, title: String
+    let coverPhoto: CoverTopic
+    
+    enum CodingKeys: String, CodingKey {
+        case id,title
+        case coverPhoto = "cover_photo"
+    }
+}
+
+struct CoverTopic: Codable {
+    let urls: UnsplashPhotoUrls
+}
+
+let columns = [
+    GridItem(.flexible(minimum: 150)),
+    GridItem(.flexible(minimum: 150))
+]
 
 struct ContentView: View {
     @StateObject var feedState = FeedState()
     @State var imageList: [UnsplashPhoto] = []
+    @State var topicList: [UnsplashTopic] = []
     var CliqueImage = false
     
-    func loadData() async {
-        // Créez une URL avec la clé d'API
-        
-        let url = URL(string: "https://api.unsplash.com/photos?client_id=\(ConfigurationManager.instance.plistDictionnary.clientId)")!
-        
-        do {
-            // Créez une requête avec cette URL
-            let request = URLRequest(url: url)
-            
-            // Faites l'appel réseau
-            let (data, _) = try await URLSession.shared.data(for: request)
-            
-            // Transformez les données en JSON
-            let deserializedData = try JSONDecoder().decode([UnsplashPhoto].self, from: data)
-            
-            // Mettez à jour l'état de la vue
-            imageList = deserializedData
-            
-        } catch {
-            print("Error: \(error)")
-        }
-    }
-    
-    let columns = [
-        GridItem(.flexible(minimum: 150)),
-        GridItem(.flexible(minimum: 150))
-    ]
-    
     var body: some View {
-        VStack {
+        NavigationStack {
             Button(action: {
                 Task {
-                    await feedState.fetchHomeFeed()
+                    await feedState.fetchFeeds()
                 }
             }, label: {
                 Text("Load Data")
             })
-            if let homeFeed = feedState.homeFeed {
+            
+            if let topicFeed = feedState.topicFeed {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack() {
+                        ForEach(topicFeed, id: \.id) { topic in
+                            NavigationLink(destination: TopicFeedView(topic: topic)) {
+                                VStack {
+                                    AsyncImage(url: URL(string: topic.coverPhoto.urls.small))
+                                        .frame(width: 100, height: 50)
+                                        .cornerRadius(8)
+                                    Text(topic.title)
+                                        .foregroundStyle(.blue)
+                                        .font(.caption)
+                                        .foregroundColor(.primary)
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            
+            if let photoFeed = feedState.photoFeed {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(homeFeed, id: \.id) { image in
+                        ForEach(photoFeed, id: \.id) { image in
                             AsyncImage(url: URL(string: image.urls.raw)) { image in
                                 image
                                     .resizable()
@@ -94,12 +106,11 @@ struct ContentView: View {
                             }
                         }
                     }
+                    .padding(.horizontal)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .navigationTitle("Feed")
                 }
-                .padding(.horizontal)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .navigationTitle("Feed")
             } else {
-                // Affiche une liste de 12 rectangles dans le else
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
                         ForEach(0..<12, id: \.self) { index in
@@ -113,8 +124,45 @@ struct ContentView: View {
                 .padding(.horizontal)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .navigationTitle("Feed")
+                .redacted(reason: .placeholder)
             }
-        }}}
+        }
+    }
+}
+
+struct TopicFeedView: View {
+    let topic: UnsplashTopic
+    @StateObject var feedState = FeedState()
+    
+    var body: some View {
+        NavigationStack {
+            Button(action: {
+                Task {
+                    await feedState.fetchTopicImages(path:"/topics/\(topic.id)/photos")
+                }
+            }, label: {
+                Text("Load photos for topic")
+            })
+            if let photosTopic = feedState.topicPhotosFeed{
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 8) {
+                        ForEach(photosTopic, id: \.id) { image in
+                            AsyncImage(url: URL(string: image.urls.raw)) { image in
+                                image
+                                    .resizable()
+                                    .frame(height: 150)
+                                    .cornerRadius(12)
+                            } placeholder: {
+                                ProgressView()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle(topic.title)
+    }
+}
 
 extension Image {
     func centerCropped() -> some View {
