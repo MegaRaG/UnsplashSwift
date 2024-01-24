@@ -177,23 +177,35 @@ struct InfoImageView: View {
     let nameUser: String
     var linkActualImage: String
     
-    @State private var selectedImageSize: ImageSize = .large
+    @State private var selectedImageSize: ImageSize = .full
     
     init(image: UnsplashPhoto) {
         self.image = image
         self.nameUser = "@\(String(describing: image.user.instagramname ?? image.user.username))"
-        self.linkActualImage = image.user.profileImage.large
+        self.linkActualImage = image.urls.full
     }
     
     var body: some View {
         VStack {
-            Text("Une image de \(nameUser)")
-                .font(.title)
-                .padding()
+            HStack{
+                Text("Une image de \(nameUser)")
+                    .font(.headline)
+                        .padding()
+                    
+                    AsyncImage(url: URL(string: image.user.profileImage.medium)) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .cornerRadius(8)
+                    } placeholder: {
+                        ProgressView()
+                    }
+            }
             
             Picker("Image Size", selection: $selectedImageSize) {
-                Text("Large").tag(ImageSize.large)
-                Text("Medium").tag(ImageSize.medium)
+                Text("Large").tag(ImageSize.full)
+                Text("Medium").tag(ImageSize.regular)
                 Text("Small").tag(ImageSize.small)
             }
             .pickerStyle(PalettePickerStyle())
@@ -221,35 +233,31 @@ struct InfoImageView: View {
         }
     }
     
-//    // Fonction pour télécharger l'image
-//    private func downloadImage() {
-//        guard let selectedImage = selectedImageView else {
-//            print("Image non disponible")
-//            return
-//        }
-//
-//        UIImageWriteToSavedPhotosAlbum(selectedImage, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
-//    }
-    
     private var selectedImageView: some View {
         switch selectedImageSize {
-        case .large:
-            return AsyncImage(url: URL(string: image.user.profileImage.large)) { image in
+        case .full:
+            return AsyncImage(url: URL(string: image.urls.full)) { image in
                 image
+                    .resizable()
+                    .scaledToFill()
             } placeholder: {
                 ProgressView()
             }
             
-        case .medium:
-            return AsyncImage(url: URL(string: image.user.profileImage.medium)) { image in
+        case .regular:
+            return AsyncImage(url: URL(string: image.urls.regular)) { image in
                 image
+                    .resizable()
+                    .scaledToFill()
             } placeholder: {
                 ProgressView()
             }
             
         case .small:
-            return AsyncImage(url: URL(string: image.user.profileImage.small)) { image in
+            return AsyncImage(url: URL(string: image.urls.small)) { image in
                 image
+                    .resizable()
+                    .scaledToFill()
             } placeholder: {
                 ProgressView()
             }
@@ -258,10 +266,8 @@ struct InfoImageView: View {
 }
 
 enum ImageSize {
-    case large, medium, small
+    case full, regular, small
 }
-
-
 
 extension Image {
     func centerCropped() -> some View {
