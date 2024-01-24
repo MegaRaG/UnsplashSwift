@@ -29,15 +29,20 @@ struct User: Codable {
     let id, username:String
     let instagramname: String?
     let profileImage:ProfilUser
+    let links:LinkUser
     
     enum CodingKeys: String, CodingKey {
-        case id, username
+        case id, username, links
         case instagramname = "instagram_username"
         case profileImage = "profile_image"
     }
 }
 struct ProfilUser : Codable{
     let small, medium, large: String
+}
+
+struct LinkUser : Codable{
+    let html: String
 }
 // MARK: - UnsplashTopic
 struct UnsplashTopic: Codable, Identifiable {
@@ -101,7 +106,7 @@ struct ContentView: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
                         ForEach(photoFeed, id: \.id) { image in
-                            AsyncImage(url: URL(string: image.urls.raw)) { image in
+                            AsyncImage(url: URL(string: image.urls.small)) { image in
                                 image
                                     .resizable()
                                     .frame(height: 150)
@@ -153,7 +158,7 @@ struct TopicFeedView: View {
                     LazyVGrid(columns: columns, spacing: 8) {
                         ForEach(photosTopic, id: \.id) { image in
                             NavigationLink(destination: InfoImageView(image: image)) {
-                                AsyncImage(url: URL(string: image.urls.raw)) { image in
+                                AsyncImage(url: URL(string: image.urls.small)) { image in
                                     image
                                         .resizable()
                                         .frame(height: 150)
@@ -172,11 +177,21 @@ struct TopicFeedView: View {
     }
 }
 
+class ImageSaver: NSObject {
+    func writeToPhotoAlbum(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
+    }
+    
+    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        print("Save finished!")
+    }
+}
+
 struct InfoImageView: View {
     let image: UnsplashPhoto
     let nameUser: String
     var linkActualImage: String
-    
+    @State private var inputImage: UIImage?
     @State private var selectedImageSize: ImageSize = .full
     
     init(image: UnsplashPhoto) {
@@ -187,21 +202,7 @@ struct InfoImageView: View {
     
     var body: some View {
         VStack {
-            HStack{
-                Text("Une image de \(nameUser)")
-                    .font(.headline)
-                        .padding()
-                    
-                    AsyncImage(url: URL(string: image.user.profileImage.medium)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50, height: 50)
-                            .cornerRadius(8)
-                    } placeholder: {
-                        ProgressView()
-                    }
-            }
+            InfoImageTitreView(image: image, nameUser: nameUser)
             
             Picker("Image Size", selection: $selectedImageSize) {
                 Text("Large").tag(ImageSize.full)
@@ -218,7 +219,6 @@ struct InfoImageView: View {
                 .cornerRadius(12)
             
             Button(action: {
-                //downloadImage()
                 print("téléchargement")
             }) {
                 HStack {
@@ -284,3 +284,5 @@ extension Image {
 #Preview {
     ContentView()
 }
+
+
