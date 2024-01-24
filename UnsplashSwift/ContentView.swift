@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import UIKit
 
 // MARK: - UnsplashPhoto
 struct UnsplashPhoto: Codable, Identifiable {
@@ -26,13 +27,17 @@ struct UnsplashPhotoUrls: Codable {
 }
 struct User: Codable {
     let id, username:String
-    let firstName, lastName: String?
+    let instagramname: String?
+    let profileImage:ProfilUser
     
     enum CodingKeys: String, CodingKey {
         case id, username
-        case firstName = "first_name"
-        case lastName = "last_name"
+        case instagramname = "instagram_username"
+        case profileImage = "profile_image"
     }
+}
+struct ProfilUser : Codable{
+    let small, medium, large: String
 }
 // MARK: - UnsplashTopic
 struct UnsplashTopic: Codable, Identifiable {
@@ -143,26 +148,120 @@ struct TopicFeedView: View {
             }, label: {
                 Text("Load photos for topic")
             })
-            if let photosTopic = feedState.topicPhotosFeed{
+            if let photosTopic = feedState.topicPhotosFeed {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
                         ForEach(photosTopic, id: \.id) { image in
-                            AsyncImage(url: URL(string: image.urls.raw)) { image in
-                                image
-                                    .resizable()
-                                    .frame(height: 150)
-                                    .cornerRadius(12)
-                            } placeholder: {
-                                ProgressView()
+                            NavigationLink(destination: InfoImageView(image: image)) {
+                                AsyncImage(url: URL(string: image.urls.raw)) { image in
+                                    image
+                                        .resizable()
+                                        .frame(height: 150)
+                                        .cornerRadius(12)
+                                } placeholder: {
+                                    ProgressView()
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        .padding(.horizontal)
         .navigationTitle(topic.title)
     }
 }
+
+struct InfoImageView: View {
+    let image: UnsplashPhoto
+    let nameUser: String
+    var linkActualImage: String
+    
+    @State private var selectedImageSize: ImageSize = .large
+    
+    init(image: UnsplashPhoto) {
+        self.image = image
+        self.nameUser = "@\(String(describing: image.user.instagramname ?? image.user.username))"
+        self.linkActualImage = image.user.profileImage.large
+    }
+    
+    var body: some View {
+        VStack {
+            Text("Une image de \(nameUser)")
+                .font(.title)
+                .padding()
+            
+            Picker("Image Size", selection: $selectedImageSize) {
+                Text("Large").tag(ImageSize.large)
+                Text("Medium").tag(ImageSize.medium)
+                Text("Small").tag(ImageSize.small)
+            }
+            .pickerStyle(PalettePickerStyle())
+            .padding()
+            
+            Spacer()
+            
+            selectedImageView
+                .frame(height: 300)
+                .cornerRadius(12)
+            
+            Button(action: {
+                //downloadImage()
+                print("téléchargement")
+            }) {
+                HStack {
+                    Image(systemName: "square.and.arrow.down")
+                        .foregroundColor(.blue)
+                    Text("Télécharger")
+                        .foregroundColor(.blue)
+                }
+                .padding()
+            }
+            .padding()
+        }
+    }
+    
+//    // Fonction pour télécharger l'image
+//    private func downloadImage() {
+//        guard let selectedImage = selectedImageView else {
+//            print("Image non disponible")
+//            return
+//        }
+//
+//        UIImageWriteToSavedPhotosAlbum(selectedImage, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+//    }
+    
+    private var selectedImageView: some View {
+        switch selectedImageSize {
+        case .large:
+            return AsyncImage(url: URL(string: image.user.profileImage.large)) { image in
+                image
+            } placeholder: {
+                ProgressView()
+            }
+            
+        case .medium:
+            return AsyncImage(url: URL(string: image.user.profileImage.medium)) { image in
+                image
+            } placeholder: {
+                ProgressView()
+            }
+            
+        case .small:
+            return AsyncImage(url: URL(string: image.user.profileImage.small)) { image in
+                image
+            } placeholder: {
+                ProgressView()
+            }
+        }
+    }
+}
+
+enum ImageSize {
+    case large, medium, small
+}
+
+
 
 extension Image {
     func centerCropped() -> some View {
